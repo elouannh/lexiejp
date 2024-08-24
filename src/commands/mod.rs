@@ -1,2 +1,2 @@
 pub mod profile;
-mod register;
+pub mod register;

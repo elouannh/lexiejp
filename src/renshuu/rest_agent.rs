@@ -20,7 +20,7 @@ impl RestAgent
 		RestAgent {
 			token,
 			client: Client::new(),
-			endpoint: String::from("https://api.renshuu.org/v1")
+			endpoint: String::from("https://api.renshuu.org/v1/")
 		}
 	}
 

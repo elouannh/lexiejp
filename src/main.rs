@@ -1,8 +1,11 @@
 mod commands;
 use commands::profile::profile_cmd;
+use commands::register::register_cmd;
+mod db;
 mod renshuu;
 mod structs;
 mod types;
+
 use types::ctx::
 {
 	Context,
@@ -39,6 +42,14 @@ pub async fn profile(
 	profile_cmd(ctx, user)
 }
 
+#[command(slash_command)]
+pub async fn register(
+	ctx: Context<'_>,
+	#[description = "Your Renshuu API key"] renshuu_api_key: Option<String>,
+) -> Result<(), CtxError> {
+	register_cmd(ctx, renshuu_api_key)
+}
+
 #[tokio::main]
 async fn main() {
 	let uri: String = var("DISCORD_TOKEN").expect("missing MONGODB_URI");
@@ -66,5 +77,4 @@ async fn main() {
 		.framework(framework)
 		.await;
 	client.unwrap().start().await.unwrap();
-	println!("TEST\n")
 }

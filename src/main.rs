@@ -28,18 +28,14 @@ use serenity::all::
 	GatewayIntents,
 	User
 };
-use std::
-{
-	env::var,
-	error::Error as StdError
-};
+use std::env::var;
 
 #[command(slash_command)]
 pub async fn profile(
 	ctx: Context<'_>,
 	#[description = "Selected user"] user: Option<User>,
 ) -> Result<(), CtxError> {
-	profile_cmd(ctx, user)
+	profile_cmd(ctx, user).await
 }
 
 #[command(slash_command)]
@@ -47,7 +43,7 @@ pub async fn register(
 	ctx: Context<'_>,
 	#[description = "Your Renshuu API key"] renshuu_api_key: Option<String>,
 ) -> Result<(), CtxError> {
-	register_cmd(ctx, renshuu_api_key)
+	register_cmd(ctx, renshuu_api_key).await
 }
 
 #[tokio::main]

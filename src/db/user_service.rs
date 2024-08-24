@@ -1,4 +1,3 @@
-use std::env::var;
 use mongodb::
 {
 	bson::
@@ -28,7 +27,7 @@ pub async fn register_user(
 
 	if found_user.is_some()
 	{
-		return Err(false.into())
+		return Ok(false);
 	}
 
 	let user = user_struct::User {
@@ -52,7 +51,7 @@ pub async fn delete_user(
 
 	if found_user.is_none()
 	{
-		return Err(false.into())
+		return Ok(false);
 	}
 
 	let _deleting: DeleteResult = collection.delete_one(filter.to_owned()).await.unwrap();

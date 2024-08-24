@@ -11,5 +11,7 @@ pub async fn profile_cmd(
 	user: Option<User>,
 ) -> Result<(), CtxError>
 {
+	let _ = ctx;
+	let _2 = user;
 	Ok(())
 }

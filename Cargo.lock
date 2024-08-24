@@ -1228,6 +1228,7 @@ dependencies = [
  "regex",
  "reqwest 0.12.7",
  "serde",
+ "serde_json",
  "serenity",
  "tokio",
  "tracing",

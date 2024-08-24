@@ -1,7 +1,12 @@
-use crate::
-{
-	structs,
-	types
-};
+use mongodb::Client;
+use poise::Context as PoiseContext;
+use std::error::Error as StdError;
 
-type Context<'a> = poise::Context<'a, structs::ctx_data::CtxData, types::ctx_error>;
+pub struct Data
+{
+	pub mongo_client: Client
+}
+
+pub type Error = Box<dyn StdError + Send + Sync>;
+
+pub type Context<'a> = PoiseContext<'a, Data, Error>;

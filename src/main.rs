@@ -1,12 +1,14 @@
 mod commands;
 use commands::profile::profile_cmd;
-mod structs;
-use structs::ctx_data as CtxData;
-mod types;
 mod renshuu;
-
-use types::ctx as Context;
-use types::ctx_error as CtxError;
+mod structs;
+mod types;
+use types::ctx::
+{
+	Context,
+	Data as CtxData,
+	Error as CtxError
+};
 
 use mongodb::Client as MongoClient;
 use poise::

@@ -15,6 +15,13 @@ derivative = "2.2.0"
 parking_lot = "0.12.1"
 trim-in-place = "0.1.7"
 indexmap = "2.2.6"
+serde = "1.0.188"
+futures = "0.3.28"
+mongodb = "3.0.1"
+jsonwebtoken = "9.0.0"
+rand = "0.8.5"
+argon2 = "0.5.3"
+reqwest = "0.12.7"
 
 [dependencies.serenity]
 default-features = false

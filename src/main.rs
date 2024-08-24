@@ -1,46 +1,66 @@
-use poise::{
+mod commands;
+use commands::profile::profile_cmd;
+mod structs;
+use structs::ctx_data as CtxData;
+mod types;
+mod renshuu;
+
+use types::ctx as Context;
+use types::ctx_error as CtxError;
+
+use mongodb::Client as MongoClient;
+use poise::
+{
+	builtins::register_globally,
 	serenity_prelude as serenity,
-	Framework
+	Framework,
+	FrameworkOptions
 };
-use serenity::all::{
+use poise_macros::command;
+use serenity::all::
+{
+	ClientBuilder,
 	GatewayIntents,
 	User
 };
+use std::
+{
+	env::var,
+	error::Error as StdError
+};
 
-struct Data {}
-type Error = Box<dyn std::error::Error + Send + Sync>;
-type Context<'a> = poise::Context<'a, Data, Error>;
-
-#[poise::command(slash_command, prefix_command)]
-async fn age(
+#[command(slash_command)]
+pub async fn profile(
 	ctx: Context<'_>,
-	#[description = "Selected user"] user: Option<serenity::User>,
-) -> Result<(), Error> {
-	let u: &User = user.as_ref().unwrap_or_else(|| ctx.author());
-	let response: String = format!("{}'s account was created at {}", u.name, u.created_at());
-	ctx.say(response).await?;
-	Ok(())
+	#[description = "Selected user"] user: Option<User>,
+) -> Result<(), CtxError> {
+	profile_cmd(ctx, user)
 }
 
 #[tokio::main]
 async fn main() {
-	let token: String = std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
-	let intents: GatewayIntents = serenity::GatewayIntents::non_privileged();
+	let uri: String = var("DISCORD_TOKEN").expect("missing MONGODB_URI");
+	let client: MongoClient = MongoClient::with_uri_str(uri).await.unwrap();
 
-	let framework: Framework<Data, Error> = Framework::builder()
-		.options(poise::FrameworkOptions {
-			commands: vec![age()],
+	let token: String = var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
+	let intents: GatewayIntents = GatewayIntents::non_privileged();
+
+	let framework: Framework<CtxData, CtxError> = Framework::builder()
+		.options(FrameworkOptions {
+			commands: vec![profile()],
 			..Default::default()
 		})
 		.setup(|ctx, _ready, framework| {
 			Box::pin(async move {
-				poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-				Ok(Data {})
+				register_globally(ctx, &framework.options().commands).await?;
+				Ok(CtxData {
+					mongo_client: client,
+				})
 			})
 		})
 		.build();
 
-	let client = serenity::ClientBuilder::new(token, intents)
+	let client = ClientBuilder::new(token, intents)
 		.framework(framework)
 		.await;
 	client.unwrap().start().await.unwrap();

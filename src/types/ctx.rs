@@ -1,12 +1,8 @@
-use mongodb::Client;
-use poise::Context as PoiseContext;
-use std::error::Error as StdError;
-
 pub struct Data
 {
-	pub mongo_client: Client
+	pub mongo_client: mongodb::Client
 }
 
-pub type Error = Box<dyn StdError + Send + Sync>;
+pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
-pub type Context<'a> = PoiseContext<'a, Data, Error>;
+pub type Context<'a> = poise::Context<'a, Data, Error>;

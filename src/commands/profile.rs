@@ -1,22 +1,17 @@
-use mongodb::bson::{doc, Document};
-use mongodb::Collection;
-use serenity::all::User;
-use crate::renshuu::rest_agent::RestAgent;
-use crate::types::ctx::
-{
-	Context,
-	Error as CtxError
-};
+use crate::renshuu;
+use crate::types;
 
 pub async fn profile_cmd(
-	ctx: &Context<'_>,
-	user: &Option<User>,
-) -> Result<(), CtxError>
+	ctx: &types::ctx::Context<'_>,
+	user: &Option<serenity::all::User>,
+) -> Result<(), types::ctx::Error>
 {
-	let collection: Collection<crate::structs::user::User> = ctx.data().mongo_client.database("lexie").collection("user");
+	let _void_user = user;
+	let collection: mongodb::Collection<crate::structs::user::User> =
+		ctx.data().mongo_client.database("lexie").collection("user");
 
 	let discord_id: String = String::from(ctx.author().id.to_string());
-	let filter: Document = doc! { "discord_id": discord_id };
+	let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
 	let found_user: Option<crate::structs::user::User> = collection.find_one(filter).await.unwrap();
 	let is_existing: bool = found_user.is_some();
 
@@ -25,8 +20,13 @@ pub async fn profile_cmd(
 		ctx.reply("User does not exist. Do /register before.").await?;
 		return Ok(())
 	}
-	let rest_agent: RestAgent = RestAgent::new(&found_user.unwrap().renshuu_api_key);
+	let rest_agent: renshuu::rest_agent::RestAgent =
+		renshuu::rest_agent::RestAgent::new(&found_user.unwrap().renshuu_api_key);
 
-	ctx.reply(format!("{}", rest_agent.get_method("https://api.renshuu.org/v1/profile").await.unwrap())).await?;
+	ctx.reply(
+		format!(
+			"{}", rest_agent.get_method("https://api.renshuu.org/v1/profile").await.unwrap()
+		)
+	).await?;
 	Ok(())
 }

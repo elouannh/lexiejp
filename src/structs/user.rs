@@ -1,10 +1,4 @@
-use serde::
-{
-	Deserialize,
-	Serialize
-};
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct User
 {
 	pub discord_id: String,

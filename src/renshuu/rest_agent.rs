@@ -1,20 +1,9 @@
-use reqwest::
-{
-	Client,
-	Response
-};
-use serde_json::
-{
-	from_str,
-	Value
-};
-use std::error::Error;
-use crate::types::ctx::Context as CtxError;
+use crate::types;
 
 pub struct RestAgent
 {
 	pub token: String,
-	pub client: Client,
+	pub client: reqwest::Client,
 }
 
 impl RestAgent
@@ -23,13 +12,13 @@ impl RestAgent
 	{
 		RestAgent {
 			token: token.to_string(),
-			client: Client::new(),
+			client: reqwest::Client::new(),
 		}
 	}
 
-	pub async fn get_method(&self, route: &str) -> Result<String, Box<dyn Error>>
+	pub async fn get_method(&self, route: &str) -> Result<String, Box<dyn std::error::Error>>
 	{
-		let response: Response = self.client
+		let response: reqwest::Response = self.client
 			.get(route)
 			.bearer_auth(&self.token)
 			.send()
@@ -46,9 +35,9 @@ impl RestAgent
 		}
 	}
 
-	pub fn parse_json(&self, user_str: &str) -> Result<Value, CtxError>
+	pub fn parse_json(&self, user_str: &str) -> Result<serde_json::Value, types::ctx::Error>
 	{
-		let json: Value = from_str(user_str).unwrap();
+		let json: serde_json::Value = serde_json::from_str(user_str).unwrap();
 		Ok(json)
 	}
 }

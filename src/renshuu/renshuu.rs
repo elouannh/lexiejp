@@ -1,24 +1,41 @@
 use std::error::Error;
-use serde_json::Value;
 use crate::renshuu::rest_agent::RestAgent;
 
-pub async fn get_profile(token: String) -> Result<String, Box<dyn Error>>
+#[allow(dead_code)]
+pub async fn get_profile(token: &String) -> Result<String, Box<dyn Error>>
 {
 	let rest_agent: RestAgent = RestAgent::new(token);
 
 	rest_agent.get_method("").await
 }
 
-pub async fn test_token(token: String) -> Result<bool, Box<dyn Error>>
+pub fn test_string(rest_agent: &RestAgent, content: &str) -> bool
+{
+	match rest_agent.parse_json(&content)
+	{
+		Ok(_) =>
+			{
+				true
+			}
+		Err(_) =>
+			{
+				false
+			}
+	}
+}
+
+pub async fn test_token(token: &String) -> bool
 {
 	let rest_agent: RestAgent = RestAgent::new(token);
 
-	let response: String = rest_agent.get_method("/profile").await?;
-	let json: Value = rest_agent.parse_json(**response)?;
-
-	if json.get("error").is_some()
+	match rest_agent.get_method("https://api.renshuu.org/v1/profile").await
 	{
-		return Ok(false)
+		Ok(content) =>
+		{
+			test_string(&rest_agent, &content)
+		}
+		Err(_) => {
+			false
+		}
 	}
-	Ok(true)
 }

@@ -36,19 +36,20 @@ pub async fn profile(
 	ctx: Context<'_>,
 	#[description = "Selected user"] user: Option<User>,
 ) -> Result<(), CtxError> {
-	profile_cmd(ctx, user).await
+	profile_cmd(&ctx, &user).await
 }
 
 #[command(slash_command)]
 pub async fn register(
 	ctx: Context<'_>,
-	#[description = "Your Renshuu API key"] renshuu_api_key: Option<String>,
+	#[description = "Your Renshuu API key"] renshuu_api_key: String,
 ) -> Result<(), CtxError> {
-	register_cmd(ctx, renshuu_api_key).await
+	register_cmd(&ctx, &renshuu_api_key).await
 }
 
 #[tokio::main]
 async fn main() {
+	env_logger::init();
 	let uri: String = var("MONGODB_URI").expect("missing MONGODB_URI");
 	let client: MongoClient = MongoClient::with_uri_str(uri).await.unwrap();
 

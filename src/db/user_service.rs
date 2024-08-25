@@ -16,8 +16,8 @@ use crate::types::ctx::Context;
 
 pub async fn register_user(
 	client: &Client,
-	ctx: Context<'_>,
-	renshuu_api_key: String,
+	ctx: &Context<'_>,
+	renshuu_api_key: &String,
 ) -> Result<bool, Box<dyn Error>>
 {
 	let collection: Collection<user_struct::User> = client.database("lexie").collection("user");
@@ -34,13 +34,14 @@ pub async fn register_user(
 	let discord_id: String = String::from(ctx.author().id.to_string());
 	let user = user_struct::User {
 		discord_id,
-		renshuu_api_key
+		renshuu_api_key: renshuu_api_key.to_string()
 	};
 
 	let _saving: InsertOneResult = collection.insert_one(user).await.unwrap();
 	Ok(true)
 }
 
+#[allow(dead_code)]
 pub async fn delete_user(
 	client: Client,
 	ctx: Context<'_>,

@@ -9,39 +9,28 @@ use serde_json::
 	Value
 };
 use std::error::Error;
-use crate::structs::user::User;
+use crate::types::ctx::Context as CtxError;
 
 pub struct RestAgent
 {
 	pub token: String,
 	pub client: Client,
-	pub endpoint: String
 }
 
 impl RestAgent
 {
-	pub fn new(token: String) -> Self
+	pub fn new(token: &String) -> Self
 	{
 		RestAgent {
-			token,
+			token: token.to_string(),
 			client: Client::new(),
-			endpoint: String::from("https://api.renshuu.org/v1/")
 		}
-	}
-
-	pub fn get_full_url(&self, route: &str) -> String
-	{
-		let mut endpoint_radical: String = self.endpoint.to_owned();
-		let route_suffix: String = String::from(route).to_owned();
-
-		endpoint_radical.push_str(&route_suffix);
-		route_suffix
 	}
 
 	pub async fn get_method(&self, route: &str) -> Result<String, Box<dyn Error>>
 	{
 		let response: Response = self.client
-			.get(self.get_full_url(route))
+			.get(route)
 			.bearer_auth(&self.token)
 			.send()
 			.await?;
@@ -57,27 +46,7 @@ impl RestAgent
 		}
 	}
 
-	pub async fn post_method(&self, route: &str, data: &Value) -> Result<String, Box<dyn Error>>
-	{
-		let response: Response = self.client
-			.post(self.get_full_url(route))
-			.bearer_auth(&self.token)
-			.json(data)
-			.send()
-			.await?;
-
-		if response.status().is_success()
-		{
-			let body: String = response.text().await?;
-			Ok(body)
-		}
-		else
-		{
-			Err(format!("Failed to post data: {}", response.status()).into())
-		}
-	}
-
-	pub fn parse_json(&self, user_str: &str) -> Result<Value, Box<dyn Error>>
+	pub fn parse_json(&self, user_str: &str) -> Result<Value, CtxError>
 	{
 		let json: Value = from_str(user_str).unwrap();
 		Ok(json)

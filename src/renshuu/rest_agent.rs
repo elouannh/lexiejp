@@ -3,8 +3,13 @@ use reqwest::
 	Client,
 	Response
 };
-use serde_json::Value;
+use serde_json::
+{
+	from_str,
+	Value
+};
 use std::error::Error;
+use crate::structs::user::User;
 
 pub struct RestAgent
 {
@@ -70,5 +75,11 @@ impl RestAgent
 		{
 			Err(format!("Failed to post data: {}", response.status()).into())
 		}
+	}
+
+	pub fn parse_json(&self, user_str: &str) -> Result<Value, Box<dyn Error>>
+	{
+		let json: Value = from_str(user_str).unwrap();
+		Ok(json)
 	}
 }

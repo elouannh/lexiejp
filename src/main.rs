@@ -5,6 +5,7 @@ mod db;
 mod renshuu;
 mod structs;
 mod types;
+mod discord;
 
 use types::ctx::
 {
@@ -48,7 +49,7 @@ pub async fn register(
 
 #[tokio::main]
 async fn main() {
-	let uri: String = var("DISCORD_TOKEN").expect("missing MONGODB_URI");
+	let uri: String = var("MONGODB_URI").expect("missing MONGODB_URI");
 	let client: MongoClient = MongoClient::with_uri_str(uri).await.unwrap();
 
 	let token: String = var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
@@ -56,7 +57,7 @@ async fn main() {
 
 	let framework: Framework<CtxData, CtxError> = Framework::builder()
 		.options(FrameworkOptions {
-			commands: vec![profile()],
+			commands: vec![profile(), register()],
 			..Default::default()
 		})
 		.setup(|ctx, _ready, framework| {

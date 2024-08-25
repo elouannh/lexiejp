@@ -15,14 +15,15 @@ use crate::structs::user as user_struct;
 use crate::types::ctx::Context;
 
 pub async fn register_user(
-	client: Client,
+	client: &Client,
 	ctx: Context<'_>,
 	renshuu_api_key: String,
 ) -> Result<bool, Box<dyn Error>>
 {
 	let collection: Collection<user_struct::User> = client.database("lexie").collection("user");
 
-	let filter: Document = doc! { "discord_id": ctx.author().id };
+	let discord_id: String = String::from(ctx.author().id.to_string());
+	let filter: Document = doc! { "discord_id": discord_id };
 	let found_user: Option<user_struct::User> = collection.find_one(filter).await?;
 
 	if found_user.is_some()
@@ -30,8 +31,9 @@ pub async fn register_user(
 		return Ok(false);
 	}
 
+	let discord_id: String = String::from(ctx.author().id.to_string());
 	let user = user_struct::User {
-		discord_id: String::from(ctx.author().id),
+		discord_id,
 		renshuu_api_key
 	};
 
@@ -46,7 +48,8 @@ pub async fn delete_user(
 {
 	let collection: Collection<user_struct::User> = client.database("lexie").collection("user");
 
-	let filter: Document = doc! { "discord_id": ctx.author().id };
+	let discord_id: String = String::from(ctx.author().id.to_string());
+	let filter: Document = doc! { "discord_id": discord_id };
 	let found_user: Option<user_struct::User> = collection.find_one(filter).await?;
 
 	if found_user.is_none()
@@ -54,6 +57,8 @@ pub async fn delete_user(
 		return Ok(false);
 	}
 
-	let _deleting: DeleteResult = collection.delete_one(filter.to_owned()).await.unwrap();
+	let doc_discord_id: String = String::from(ctx.author().id.to_string());
+	let doc: Document = doc! { "discord_id": doc_discord_id };
+	let _deleting: DeleteResult = collection.delete_one(doc).await.unwrap();
 	Ok(true)
 }

@@ -22,13 +22,6 @@ pub async fn leave_cmd(
 		mongodb::bson::doc! { "discord_id": String::from(ctx.author().id.to_string()) }
 	);
 
-	let reply: poise::CreateReply = {
-		let content: &str = "You have been deleted successfully.";
-
-		poise::CreateReply::default()
-			.content(content)
-			.ephemeral(true)
-	};
-	ctx.send(reply).await.unwrap();
+	replies::default_replies::user_deleted_successfully(ctx, true).await?;
 	Ok(())
 }

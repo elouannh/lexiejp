@@ -55,7 +55,8 @@ pub struct ApiProfileStreaks
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct ApiProfile {
+pub struct ApiProfile
+{
 	pub id: String,
 	pub real_name: String,
 	pub adventure_level: String,
@@ -66,10 +67,12 @@ pub struct ApiProfile {
 	pub streaks: ApiProfileStreaks
 }
 
-impl TryFrom<Result<ApiProfile, serde_json::error::Error>> for ApiProfile {
+impl TryFrom<Result<ApiProfile, serde_json::error::Error>> for ApiProfile
+{
 	type Error = serde_json::error::Error;
 
-	fn try_from(value: Result<ApiProfile, serde_json::error::Error>) -> Result<Self, serde_json::error::Error> {
+	fn try_from(value: Result<ApiProfile, serde_json::error::Error>) -> Result<Self, serde_json::error::Error>
+	{
 		match value {
 			Ok(profile) => Ok(profile),
 			Err(e) => Err(e),

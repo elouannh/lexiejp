@@ -1,6 +1,7 @@
 use crate::{classes, discord, renshuu, replies, types};
 
-fn set_default(ctx: &types::ctx::Context<'_>) -> serenity::all::User {
+fn set_default(ctx: &types::ctx::Context<'_>) -> serenity::all::User
+{
 	ctx.author().clone()
 }
 

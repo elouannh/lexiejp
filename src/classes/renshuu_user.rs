@@ -15,7 +15,8 @@ impl RenshuuUser
 		let profile: Result<structs::api_profile::ApiProfile, serde_json::Error> =
 			structs::api_profile::ApiProfile::try_from(serde_json::from_str(&content));
 
-		let mut self_data = RenshuuUser {
+		let mut self_data = RenshuuUser
+		{
 			user,
 			content,
 			profile: profile.unwrap(),

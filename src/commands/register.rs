@@ -1,4 +1,4 @@
-use crate::{db, renshuu, structs, types};
+use crate::{db, renshuu, replies, structs, types};
 
 pub async fn register_cmd(
 	ctx: &types::ctx::Context<'_>,
@@ -17,38 +17,17 @@ pub async fn register_cmd(
 
 	if !tested
 	{
-		let reply: poise::CreateReply = {
-			let content: &str = "Invalid token provided.";
-
-			poise::CreateReply::default()
-				.content(content)
-				.ephemeral(true)
-		};
-		ctx.send(reply).await?;
+		replies::default_replies::invalid_token_provided(ctx, true).await?;
 		return Ok(())
 	}
 
 	if is_existing
 	{
-		let reply: poise::CreateReply = {
-			let content: &str = "API token edited successfully.";
-
-			poise::CreateReply::default()
-				.content(content)
-				.ephemeral(true)
-		};
-		ctx.send(reply).await?;
+		replies::default_replies::api_token_updated_successfully(ctx, true).await?;
 	}
 	else
 	{
-		let reply: poise::CreateReply = {
-			let content: &str = "User successfully registered.";
-
-			poise::CreateReply::default()
-				.content(content)
-				.ephemeral(true)
-		};
-		ctx.send(reply).await?;
+		replies::default_replies::user_successfully_registered(ctx, true).await?;
 	}
 
 	let mongo_client: &mongodb::Client = &ctx.data().mongo_client;

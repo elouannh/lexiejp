@@ -1,13 +1,8 @@
 #!/bin/bash
 
 ENV_FILE="envs/dev/.env"
-RUST_LOG=trace cargo run
 
-if [ -f "$ENV_FILE" ]; then
-	export $(grep -v '#^' $ENV_FILE | xargs)
-else
-	exit 1
-fi
+cp ./envs/dev/.env ./.env
 
 cargo run
 

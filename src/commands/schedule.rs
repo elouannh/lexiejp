@@ -1,19 +1,13 @@
-use crate::{classes, discord, renshuu, replies, types};
+use crate::{discord, renshuu, replies, types};
 
-fn set_default(ctx: &types::ctx::Context<'_>) -> serenity::all::User {
-	ctx.author().clone()
-}
-
-pub async fn profile_cmd(
+pub async fn schedule_cmd(
 	ctx: &types::ctx::Context<'_>,
-	user: &Option<serenity::all::User>,
 ) -> Result<(), types::ctx::Error>
 {
-	let user_profile: &serenity::all::User = &user.clone().unwrap_or_else(|| set_default(ctx));
 	let collection: mongodb::Collection<crate::structs::user::User> =
 		ctx.data().mongo_client.database("lexie").collection("user");
 
-	let discord_id: String = String::from(user_profile.id.to_string());
+	let discord_id: String = String::from(ctx.author().id.to_string());
 	let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
 	let found_user: Option<crate::structs::user::User> = collection.find_one(filter).await.unwrap();
 	let is_existing: bool = found_user.is_some();
@@ -28,17 +22,14 @@ pub async fn profile_cmd(
 
 	let content: &String = &rest_agent.get_method("https://api.renshuu.org/v1/profile")
 		.await.expect("Something went wrong with the API.");
-	let renshuu_user: classes::renshuu_user::RenshuuUser = classes::renshuu_user::RenshuuUser::new(
-		user_profile.to_owned(), content.to_owned()
-	);
 
-	let reply: poise::CreateReply = {
+	let _reply: poise::CreateReply = {
 		let embed: poise::serenity_prelude::CreateEmbed =
-			discord::embeds::profile_embed(&renshuu_user);
+			discord::embeds::schedule_embed(content);
 
 		poise::CreateReply::default()
 			.embed(embed)
 	};
-	ctx.send(reply).await.unwrap();
+	// ctx.send(reply).await.unwrap();
 	Ok(())
 }

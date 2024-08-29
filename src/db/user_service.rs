@@ -1,5 +1,8 @@
-use crate::structs;
-use crate::types;
+use crate::
+{
+	structs,
+	types
+};
 
 pub async fn register_user(
 	client: &mongodb::Client,
@@ -22,7 +25,10 @@ pub async fn register_user(
 	let discord_id: String = String::from(ctx.author().id.to_string());
 	let user = structs::user::User {
 		discord_id,
-		renshuu_api_key: renshuu_api_key.to_string()
+		renshuu_api_key: renshuu_api_key.to_string(),
+		privacy: structs::user::UserPrivacy {
+			visibility: structs::user::UserPrivacyVisibility::Off
+		}
 	};
 
 	let _saving: mongodb::results::InsertOneResult = collection.insert_one(user).await.unwrap();

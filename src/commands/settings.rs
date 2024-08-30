@@ -1,6 +1,6 @@
 use crate::{db, discord, renshuu, replies, structs, types};
 
-pub async fn schedule_cmd(ctx: &types::ctx::Context<'_>) -> Result<(), types::ctx::Error> {
+pub async fn settings_cmd(ctx: &types::ctx::Context<'_>) -> Result<(), types::ctx::Error> {
     let collection: mongodb::Collection<structs::user::User> =
         db::access::get_collection(&ctx.data().mongo_client);
     let discord_id: String = String::from(ctx.author().id.to_string());

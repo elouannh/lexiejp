@@ -2,11 +2,7 @@
 
 ENV_FILE="envs/prod/.env"
 
-if [ -f "$ENV_FILE" ]; then
-	export $(grep -v '#^' $ENV_FILE | xargs)
-else
-	exit 1
-fi
+cp ./envs/prod/.env ./.env
 
 cargo build --release
 

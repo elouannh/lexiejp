@@ -1,6 +1,5 @@
-pub struct Data
-{
-	pub mongo_client: mongodb::Client
+pub struct Data {
+    pub mongo_client: mongodb::Client,
 }
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;

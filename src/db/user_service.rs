@@ -1,36 +1,51 @@
-use crate::
-{
-	structs,
-	types
-};
+use crate::{classes, db, structs, types};
+
+pub async fn user_exists(ctx: &types::ctx::Context<'_>) -> bool {
+    let coll: mongodb::Collection<structs::user::User> =
+        db::access::get_collection(&ctx.data().mongo_client);
+    let discord_id: String = String::from(ctx.author().id.to_string());
+    let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
+    let found_user: Option<structs::user::User> = coll.find_one(filter).await.unwrap();
+
+    if found_user.is_some() {
+        return true;
+    }
+
+    false
+}
+
+pub async fn get_user(
+    ctx: &types::ctx::Context<'_>,
+) -> Result<structs::user::User, Box<dyn std::error::Error>> {
+    let coll: mongodb::Collection<structs::user::User> =
+        db::access::get_collection(&ctx.data().mongo_client);
+    let discord_id: String = String::from(ctx.author().id.to_string());
+    let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
+    let found_user: Option<structs::user::User> = coll.find_one(filter).await?;
+
+    Ok(found_user.expect("User does not exist."))
+}
 
 pub async fn register_user(
-	client: &mongodb::Client,
-	ctx: &types::ctx::Context<'_>,
-	renshuu_api_key: &String,
-) -> Result<bool, Box<dyn std::error::Error>>
-{
-	let collection: mongodb::Collection<structs::user::User> =
-		client.database("lexie").collection("user");
+    ctx: &types::ctx::Context<'_>,
+    renshuu_api_key: &String,
+) -> Result<bool, Box<dyn std::error::Error>> {
+    let coll: mongodb::Collection<structs::user::User> =
+        db::access::get_collection(&ctx.data().mongo_client);
+    let renshuu_user: classes::renshuu_user::RenshuuUser =
+        classes::renshuu_user::RenshuuUser::new(ctx, renshuu_api_key).await;
+    let _saving: mongodb::results::InsertOneResult =
+        coll.insert_one(renshuu_user.register_data()).await.unwrap();
+    Ok(true)
+}
 
-	let discord_id: String = String::from(ctx.author().id.to_string());
-	let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
-	let found_user: Option<structs::user::User> = collection.find_one(filter).await?;
-
-	if found_user.is_some()
-	{
-		return Ok(false);
-	}
-
-	let discord_id: String = String::from(ctx.author().id.to_string());
-	let user = structs::user::User {
-		discord_id,
-		renshuu_api_key: renshuu_api_key.to_string(),
-		privacy: structs::user::UserPrivacy {
-			visibility: structs::user::UserPrivacyVisibility::Off
-		}
-	};
-
-	let _saving: mongodb::results::InsertOneResult = collection.insert_one(user).await.unwrap();
-	Ok(true)
+pub async fn delete_user(
+    client: &mongodb::Client,
+    ctx: &types::ctx::Context<'_>,
+) -> Result<bool, Box<dyn std::error::Error>> {
+    let collection: mongodb::Collection<structs::user::User> = db::access::get_collection(client);
+    let discord_id: String = String::from(ctx.author().id.to_string());
+    let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
+    let _deleting = collection.find_one_and_delete(filter);
+    Ok(true)
 }

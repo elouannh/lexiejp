@@ -4,8 +4,7 @@ use crate::structs::user;
 use crate::types::ctx;
 
 pub async fn user_exists(ctx: &ctx::Context<'_>) -> bool {
-    let coll: mongodb::Collection<user::User> =
-        access::get_collection(&ctx.data().mongo_client);
+    let coll: mongodb::Collection<user::User> = access::get_collection(&ctx.data().mongo_client);
     let discord_id: String = String::from(ctx.author().id.to_string());
     let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
     let found_user: Option<user::User> = coll.find_one(filter).await.unwrap();
@@ -17,11 +16,8 @@ pub async fn user_exists(ctx: &ctx::Context<'_>) -> bool {
     false
 }
 
-pub async fn get_user(
-    ctx: &ctx::Context<'_>,
-) -> Result<user::User, Box<dyn std::error::Error>> {
-    let coll: mongodb::Collection<user::User> =
-        access::get_collection(&ctx.data().mongo_client);
+pub async fn get_user(ctx: &ctx::Context<'_>) -> Result<user::User, Box<dyn std::error::Error>> {
+    let coll: mongodb::Collection<user::User> = access::get_collection(&ctx.data().mongo_client);
     let discord_id: String = String::from(ctx.author().id.to_string());
     let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
     let found_user: Option<user::User> = coll.find_one(filter).await?;

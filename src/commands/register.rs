@@ -6,7 +6,7 @@ use crate::types::ctx;
 
 pub async fn register_cmd(
     ctx: &ctx::Context<'_>,
-    renshuu_api_key: &String
+    renshuu_api_key: &String,
 ) -> Result<(), ctx::Error> {
     let collection: mongodb::Collection<user::User> =
         access::get_collection(&ctx.data().mongo_client);

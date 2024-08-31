@@ -1,4 +1,4 @@
-use crate::types;
+use crate::types::ctx;
 
 pub struct RestAgent {
     pub token: String,
@@ -29,7 +29,7 @@ impl RestAgent {
         }
     }
 
-    pub fn parse_json(&self, user_str: &str) -> Result<serde_json::Value, types::ctx::Error> {
+    pub fn parse_json(&self, user_str: &str) -> Result<serde_json::Value, ctx::Error> {
         let json: serde_json::Value = serde_json::from_str(user_str).unwrap();
         Ok(json)
     }

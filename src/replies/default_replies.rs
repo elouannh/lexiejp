@@ -1,9 +1,9 @@
-use crate::types;
+use crate::types::ctx;
 
 pub async fn user_does_not_exist(
-    ctx: &types::ctx::Context<'_>,
+    ctx: &ctx::Context<'_>,
     ephemeral: bool,
-) -> Result<(), types::ctx::Error> {
+) -> Result<(), ctx::Error> {
     let reply: poise::CreateReply = {
         let content: &str = "User does not exist. Do /register before.";
 
@@ -16,9 +16,9 @@ pub async fn user_does_not_exist(
 }
 
 pub async fn user_deleted_successfully(
-    ctx: &types::ctx::Context<'_>,
+    ctx: &ctx::Context<'_>,
     ephemeral: bool,
-) -> Result<(), types::ctx::Error> {
+) -> Result<(), ctx::Error> {
     let reply: poise::CreateReply = {
         let content: &str = "You have been deleted successfully.";
 
@@ -31,9 +31,9 @@ pub async fn user_deleted_successfully(
 }
 
 pub async fn invalid_token_provided(
-    ctx: &types::ctx::Context<'_>,
+    ctx: &ctx::Context<'_>,
     ephemeral: bool,
-) -> Result<(), types::ctx::Error> {
+) -> Result<(), ctx::Error> {
     let reply: poise::CreateReply = {
         let content: &str = "Invalid token provided.";
 
@@ -46,9 +46,9 @@ pub async fn invalid_token_provided(
 }
 
 pub async fn api_token_updated_successfully(
-    ctx: &types::ctx::Context<'_>,
+    ctx: ctx::Context<'_>,
     ephemeral: bool,
-) -> Result<(), types::ctx::Error> {
+) -> Result<(), ctx::Error> {
     let reply: poise::CreateReply = {
         let content: &str = "API token updated successfully.";
 
@@ -61,9 +61,9 @@ pub async fn api_token_updated_successfully(
 }
 
 pub async fn user_successfully_registered(
-    ctx: &types::ctx::Context<'_>,
+    ctx: &ctx::Context<'_>,
     ephemeral: bool,
-) -> Result<(), types::ctx::Error> {
+) -> Result<(), ctx::Error> {
     let reply: poise::CreateReply = {
         let content: &str = "User successfully registered.";
 

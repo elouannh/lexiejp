@@ -1,7 +1,7 @@
-use crate::classes;
+use crate::classes::renshuu_user;
 
 pub fn profile_embed(
-    renshuu_user: &classes::renshuu_user::RenshuuUser,
+    renshuu_user: &renshuu_user::RenshuuUser,
 ) -> poise::serenity_prelude::CreateEmbed {
     let embed: poise::serenity_prelude::CreateEmbed = poise::serenity_prelude::CreateEmbed::new();
 

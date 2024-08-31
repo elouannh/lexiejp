@@ -53,7 +53,14 @@ Since the bot is based on the public API of the application (link of the public 
 
 You just have to copy it and put it into the /register command (don't forget to add the bot [with this link](https://discord.com/oauth2/authorize?client_id=1278404960685654117) or to use it in a Discord server where the bot is present).
 
-The rest is being written...
+There is an example:
+
+![Token register command](https://media.botmarket.ovh/Ges2m5zsv65Vasm.png)
+
+![Token updated successfully](https://media.botmarket.ovh/GfzDB90EXayWgoW.png)
+
+Congratulations! You can now use the bot. Don't hesitate to ask questions in our [official Discord server](https://discord.gg/7deeC7mHhP) if you have some!
+
 ## Run/Deploy Locally
 
 Clone the project

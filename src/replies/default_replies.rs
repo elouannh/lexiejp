@@ -46,7 +46,7 @@ pub async fn invalid_token_provided(
 }
 
 pub async fn api_token_updated_successfully(
-    ctx: ctx::Context<'_>,
+    ctx: &ctx::Context<'_>,
     ephemeral: bool,
 ) -> Result<(), ctx::Error> {
     let reply: poise::CreateReply = {

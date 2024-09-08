@@ -1,4 +1,4 @@
-use crate::renshuu::rest_agent;
+use crate::classes::rest_agent;
 use crate::structs::{api_profile, user};
 use crate::types::ctx;
 

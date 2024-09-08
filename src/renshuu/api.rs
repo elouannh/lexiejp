@@ -1,4 +1,4 @@
-use crate::renshuu::rest_agent;
+use crate::classes::rest_agent;
 
 pub fn test_string(rest_agent: &rest_agent::RestAgent, content: &str) -> bool {
     match rest_agent.parse_json(&content) {

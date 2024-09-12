@@ -9,11 +9,7 @@ pub async fn user_exists(ctx: &ctx::Context<'_>) -> bool {
     let filter: mongodb::bson::Document = mongodb::bson::doc! { "discord_id": discord_id };
     let found_user: Option<user::User> = coll.find_one(filter).await.unwrap();
 
-    if found_user.is_some() {
-        return true;
-    }
-
-    false
+    found_user.is_some()
 }
 
 pub async fn get_user(ctx: &ctx::Context<'_>) -> Result<user::User, Box<dyn std::error::Error>> {
@@ -30,10 +26,12 @@ pub async fn register_user(
     renshuu_api_key: &String,
 ) -> Result<bool, Box<dyn std::error::Error>> {
     let coll: mongodb::Collection<user::User> = access::get_collection(&ctx.data().mongo_client);
+
     let renshuu_user: renshuu_user::RenshuuUser =
-        renshuu_user::RenshuuUser::new(ctx, renshuu_api_key).await;
+        renshuu_user::RenshuuUser::new(ctx, renshuu_api_key).await?;
     let _saving: mongodb::results::InsertOneResult =
-        coll.insert_one(renshuu_user.register_data()).await.unwrap();
+        coll.insert_one(renshuu_user.register_data()).await?;
+
     Ok(true)
 }
 

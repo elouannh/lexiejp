@@ -29,12 +29,12 @@ pub async fn profile_cmd(
     let rest_agent: rest_agent::RestAgent =
         rest_agent::RestAgent::new(&user_data.unwrap().renshuu_api_key);
     let renshuu_user: renshuu_user::RenshuuUser =
-        renshuu_user::RenshuuUser::new(ctx, &rest_agent.token.to_string()).await;
+        renshuu_user::RenshuuUser::new(ctx, &rest_agent.token.to_string()).await?;
     let reply: poise::CreateReply = {
         let embed: poise::serenity_prelude::CreateEmbed = embeds::profile_embed(&renshuu_user);
 
         poise::CreateReply::default().embed(embed)
     };
-    ctx.send(reply).await.unwrap();
+    ctx.send(reply).await?;
     Ok(())
 }

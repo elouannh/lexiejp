@@ -94,161 +94,71 @@ pub enum ProfileEnum {
     Normal(ApiProfile),
 }
 
+macro_rules! impl_study_getter {
+    ($name:ident, $beginner_field:ident, $normal_field:ident) => {
+        pub fn $name(&self) -> &i32 {
+            match self {
+                StudiedEnum::Beginner(content) => &content.$beginner_field,
+                StudiedEnum::Normal(content) => &content.$normal_field,
+            }
+        }
+    };
+}
+
 impl StudiedEnum<'_> {
-    pub fn today_all(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_all,
-            StudiedEnum::Normal(content) => &content.today_all,
-        }
-    }
-
-    pub fn today_vocab(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_vocab,
-            StudiedEnum::Normal(content) => &content.today_vocab,
-        }
-    }
-
-    pub fn today_grammar(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_grammar,
-            StudiedEnum::Normal(content) => &content.today_grammar,
-        }
-    }
-
-    pub fn today_kanji(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_kanji,
-            StudiedEnum::Normal(content) => &content.today_kanji,
-        }
-    }
-
-    pub fn today_sent(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_sent,
-            StudiedEnum::Normal(content) => &content.today_sent,
-        }
-    }
-
-    pub fn today_conj(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_conj,
-            StudiedEnum::Normal(content) => &content.today_conj,
-        }
-    }
-
-    pub fn today_aconj(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_aconj,
-            StudiedEnum::Normal(content) => &content.today_aconj,
-        }
-    }
-
-    pub fn total(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_all,
-            StudiedEnum::Normal(content) => &content.total_sent,
-        }
-    }
-
-    pub fn total_vocab(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_vocab,
-            StudiedEnum::Normal(content) => &content.total_vocab,
-        }
-    }
-
-    pub fn total_grammar(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_grammar,
-            StudiedEnum::Normal(content) => &content.total_grammar,
-        }
-    }
-
-    pub fn total_kanji(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_kanji,
-            StudiedEnum::Normal(content) => &content.total_kanji,
-        }
-    }
-
-    pub fn total_sent(&self) -> &i32 {
-        match self {
-            StudiedEnum::Beginner(content) => &content.today_sent,
-            StudiedEnum::Normal(content) => &content.total_sent,
-        }
-    }
+    impl_study_getter!(today_all, today_all, today_all);
+    impl_study_getter!(today_vocab, today_vocab, today_vocab);
+    impl_study_getter!(today_grammar, today_grammar, today_grammar);
+    impl_study_getter!(today_kanji, today_kanji, today_kanji);
+    impl_study_getter!(today_sent, today_sent, today_sent);
+    impl_study_getter!(today_conj, today_conj, today_conj);
+    impl_study_getter!(today_aconj, today_aconj, today_aconj);
+    impl_study_getter!(total, today_all, total);
+    impl_study_getter!(total_vocab, today_vocab, total_vocab);
+    impl_study_getter!(total_grammar, today_grammar, total_grammar);
+    impl_study_getter!(total_kanji, today_kanji, total_kanji);
+    impl_study_getter!(total_sent, today_sent, total_sent);
 }
 
-impl TryFrom<serde_json::Value> for ApiProfile {
-    type Error = Box<dyn std::error::Error>;
+macro_rules! impl_try_from_json_value {
+    ($type:ty) => {
+        impl TryFrom<serde_json::Value> for $type {
+            type Error = Box<dyn std::error::Error>;
 
-    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        serde_json::from_value(value).map_err(|e| e.into())
-    }
+            fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+                serde_json::from_value(value).map_err(|e| e.into())
+            }
+        }
+    };
 }
 
-impl TryFrom<serde_json::Value> for ApiBeginnerProfile {
-    type Error = Box<dyn std::error::Error>;
+impl_try_from_json_value!(ApiProfile);
+impl_try_from_json_value!(ApiBeginnerProfile);
 
-    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        serde_json::from_value(value).map_err(|e| e.into())
-    }
+macro_rules! impl_profile_getter {
+    ($method:ident, $return_type:ty) => {
+        pub fn $method(&self) -> &$return_type {
+            match self {
+                ProfileEnum::Beginner(content) => &content.$method,
+                ProfileEnum::Normal(content) => &content.$method
+            }
+        }
+    };
 }
 
 impl ProfileEnum {
     pub fn create(content: &String) -> Result<ProfileEnum, Box<dyn std::error::Error>> {
         let json: serde_json::Value = serde_json::from_str(content)?;
 
-        if let Ok(profile) = ApiProfile::try_from(json.clone()) {
-            Ok(ProfileEnum::Normal(profile))
-        } else if let Ok(beginner_profile) = ApiBeginnerProfile::try_from(json) {
-            Ok(ProfileEnum::Beginner(beginner_profile))
-        } else {
-            Err("Could not deserialize into either ApiProfile or ApiBeginnerProfile".into())
+        match (ApiProfile::try_from(json.clone()), ApiBeginnerProfile::try_from(json)) {
+            (Ok(profile), _) => Ok(ProfileEnum::Normal(profile)),
+            (_, Ok(beginner_profile)) => Ok(ProfileEnum::Beginner(beginner_profile)),
+            (Err(e1), Err(e2)) => Err(format!("Failed to parse as either profile type. Normal error: {}, beginner error: {}", e1, e2).into())
         }
     }
 
     pub fn is_beginner(&self) -> bool {
-        match self {
-            ProfileEnum::Beginner(_) => true,
-            ProfileEnum::Normal(_) => false,
-        }
-    }
-
-    pub fn id(&self) -> &String {
-        match self {
-            ProfileEnum::Beginner(content) => &content.id,
-            ProfileEnum::Normal(content) => &content.id,
-        }
-    }
-
-    pub fn real_name(&self) -> &String {
-        match self {
-            ProfileEnum::Beginner(content) => &content.real_name,
-            ProfileEnum::Normal(content) => &content.real_name,
-        }
-    }
-
-    pub fn adventure_level(&self) -> &String {
-        match self {
-            ProfileEnum::Beginner(content) => &content.adventure_level,
-            ProfileEnum::Normal(content) => &content.adventure_level,
-        }
-    }
-
-    pub fn user_length(&self) -> &String {
-        match self {
-            ProfileEnum::Beginner(content) => &content.user_length,
-            ProfileEnum::Normal(content) => &content.user_length,
-        }
-    }
-
-    pub fn kao(&self) -> &String {
-        match self {
-            ProfileEnum::Beginner(content) => &content.kao,
-            ProfileEnum::Normal(content) => &content.kao,
-        }
+        matches!(self, ProfileEnum::Beginner(_))
     }
 
     pub fn studied(&self) -> StudiedEnum {
@@ -258,17 +168,11 @@ impl ProfileEnum {
         }
     }
 
-    pub fn level_progress_percs(&self) -> &ApiProfileProgressPercs {
-        match self {
-            ProfileEnum::Beginner(content) => &content.level_progress_percs,
-            ProfileEnum::Normal(content) => &content.level_progress_percs,
-        }
-    }
-
-    pub fn streaks(&self) -> &ApiProfileStreaks {
-        match self {
-            ProfileEnum::Beginner(content) => &content.streaks,
-            ProfileEnum::Normal(content) => &content.streaks,
-        }
-    }
+    impl_profile_getter!(id, String);
+    impl_profile_getter!(real_name, String);
+    impl_profile_getter!(adventure_level, String);
+    impl_profile_getter!(user_length, String);
+    impl_profile_getter!(kao, String);
+    impl_profile_getter!(level_progress_percs, ApiProfileProgressPercs);
+    impl_profile_getter!(streaks, ApiProfileStreaks);
 }

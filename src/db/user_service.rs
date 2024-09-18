@@ -26,12 +26,12 @@ pub async fn register_user(
     renshuu_api_key: &String,
 ) -> Result<bool, Box<dyn std::error::Error>> {
     let coll: mongodb::Collection<user::User> = access::get_collection(&ctx.data().mongo_client);
-
-    let renshuu_user: renshuu_user::RenshuuUser =
-        renshuu_user::RenshuuUser::new(ctx, renshuu_api_key).await?;
-    let _saving: mongodb::results::InsertOneResult =
-        coll.insert_one(renshuu_user.register_data()).await?;
-
+    let renshuu_user: Result<renshuu_user::RenshuuUser, ctx::Error> =
+        renshuu_user::RenshuuUser::new(ctx, renshuu_api_key).await;
+    if renshuu_user.is_ok() {
+        let _saving: mongodb::results::InsertOneResult =
+            coll.insert_one(renshuu_user.unwrap().register_data()).await?;
+    }
     Ok(true)
 }
 

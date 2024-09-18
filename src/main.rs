@@ -2,6 +2,7 @@ mod classes;
 mod commands;
 mod db;
 mod discord;
+mod errors;
 mod renshuu;
 mod replies;
 mod structs;

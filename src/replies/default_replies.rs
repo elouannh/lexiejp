@@ -1,6 +1,6 @@
 use crate::types::ctx;
 
-async fn send_message(
+pub async fn send_message(
     ctx: &ctx::Context<'_>,
     content: &str,
     ephemeral: bool,
@@ -16,7 +16,7 @@ pub async fn user_does_not_exist(
     ctx: &ctx::Context<'_>,
     ephemeral: bool,
 ) -> Result<(), ctx::Error> {
-    send_message(ctx, "User does not exist. Do /register before.", ephemeral).await
+    send_message(ctx, "User does not exist. Do /register before", ephemeral).await
 }
 
 pub async fn user_deleted_successfully(

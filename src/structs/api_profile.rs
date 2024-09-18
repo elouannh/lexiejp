@@ -113,7 +113,7 @@ impl StudiedEnum<'_> {
     impl_study_getter!(today_sent, today_sent, today_sent);
     impl_study_getter!(today_conj, today_conj, today_conj);
     impl_study_getter!(today_aconj, today_aconj, today_aconj);
-    impl_study_getter!(total, today_all, total_sent); // is this right?
+    impl_study_getter!(total, today_all, total);
     impl_study_getter!(total_vocab, today_vocab, total_vocab);
     impl_study_getter!(total_grammar, today_grammar, total_grammar);
     impl_study_getter!(total_kanji, today_kanji, total_kanji);
@@ -140,7 +140,7 @@ macro_rules! impl_profile_getter {
         pub fn $method(&self) -> &$return_type {
             match self {
                 ProfileEnum::Beginner(content) => &content.$method,
-                ProfileEnum::Normal(content) => &content.$method,
+                ProfileEnum::Normal(content) => &content.$method
             }
         }
     };
@@ -153,19 +153,13 @@ impl ProfileEnum {
         match (ApiProfile::try_from(json.clone()), ApiBeginnerProfile::try_from(json)) {
             (Ok(profile), _) => Ok(ProfileEnum::Normal(profile)),
             (_, Ok(beginner_profile)) => Ok(ProfileEnum::Beginner(beginner_profile)),
-            (Err(e1), Err(e2)) => Err(format!("Failed to parse as either profile type. Normal error: {}, Beginner error: {}", e1, e2).into())
+            (Err(e1), Err(e2)) => Err(format!("Failed to parse as either profile type. Normal error: {}, beginner error: {}", e1, e2).into())
         }
     }
 
     pub fn is_beginner(&self) -> bool {
         matches!(self, ProfileEnum::Beginner(_))
     }
-
-    impl_profile_getter!(id, String);
-    impl_profile_getter!(real_name, String);
-    impl_profile_getter!(adventure_level, String);
-    impl_profile_getter!(user_length, String);
-    impl_profile_getter!(kao, String);
 
     pub fn studied(&self) -> StudiedEnum {
         match self {
@@ -174,7 +168,11 @@ impl ProfileEnum {
         }
     }
 
+    impl_profile_getter!(id, String);
+    impl_profile_getter!(real_name, String);
+    impl_profile_getter!(adventure_level, String);
+    impl_profile_getter!(user_length, String);
+    impl_profile_getter!(kao, String);
     impl_profile_getter!(level_progress_percs, ApiProfileProgressPercs);
     impl_profile_getter!(streaks, ApiProfileStreaks);
-
 }

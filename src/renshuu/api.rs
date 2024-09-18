@@ -1,4 +1,4 @@
-use crate::renshuu::rest_agent;
+use crate::classes::rest_agent;
 
 pub fn test_string(content: &str) -> bool {
     serde_json::from_str::<serde_json::Value>(content).is_ok()

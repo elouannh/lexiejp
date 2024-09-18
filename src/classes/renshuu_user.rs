@@ -1,6 +1,7 @@
-use crate::renshuu::rest_agent;
+use crate::classes::rest_agent;
 use crate::structs::{api_profile, user};
 use crate::types::ctx;
+use std::fmt::Write;
 
 pub struct RenshuuUser {
     pub db_data: user::User,
@@ -9,19 +10,16 @@ pub struct RenshuuUser {
     pub profile: api_profile::ProfileEnum,
     pub levels_vec: Vec<i32>,
     pub is_beginner: bool,
-    pub already_exists: bool,
 }
 
 impl RenshuuUser {
-    pub async fn new(ctx: &ctx::Context<'_>, renshuu_api_key: &String) -> Result<Self, Box<dyn std::error::Error>> {
-        let user_exists: bool = renshuu_api_key.is_some();
+    pub async fn new(ctx: &ctx::Context<'_>, renshuu_api_key: &String) -> Result<Self, ctx::Error> {
         let db_data: user::User = Self::create_db_data(ctx, renshuu_api_key);
-        let mut content = Self::fetch_content(&db_data, renshuu_api_key).await?; // maybe can remove the mut here?
-        let profile: api_profile::ProfileEnum =
-            api_profile::ProfileEnum::create(&content)
-                .map_err(|_| "Invalid user.")?;
-        let is_beginner: bool = profile.is_beginner();
+        let mut content: String = Self::fetch_content(&db_data, renshuu_api_key).await.unwrap();
 
+        let profile: api_profile::ProfileEnum =
+            api_profile::ProfileEnum::create(&content).map_err(|_| "Invalid user.")?;
+        let is_beginner: bool = profile.is_beginner();
         Ok(RenshuuUser {
             db_data,
             user: ctx.author().to_owned(),
@@ -29,22 +27,21 @@ impl RenshuuUser {
             profile,
             levels_vec: vec![],
             is_beginner,
-            already_exists: user_exists,
         })
     }
 
-    fn create_db_data(ctx: &ctx::Context<'_>, renshuu_api_key: &String) -> user::User {
+    pub fn create_db_data(ctx: &ctx::Context<'_>, renshuu_api_key: &String) -> user::User {
         user::User::default(&ctx.author().id.to_string(), renshuu_api_key)
     }
 
-    async fn fetch_content(db_data: &user::User, renshuu_api_key: &String) -> Result<String, Box<dyn std::error::Error>> {
+    pub async fn fetch_content(db_data: &user::User, renshuu_api_key: &String) -> Result<String, Box<dyn std::error::Error>> {
         if db_data.cache.len() >= 2 {
             return Ok(db_data.cache.clone());
         }
 
+        const API_URL: &str = "https://api.renshuu.org/v1/profile";
         let rest_agent: rest_agent::RestAgent = rest_agent::RestAgent::new(renshuu_api_key);
-        rest_agent.get_method("https://api.renshuu.org/v1/profile").await
-            .map_err(|e| e.into())
+        rest_agent.get_method(API_URL).await.map_err(|e| e.into())
     }
 
     pub fn register_data(&self) -> user::User {
@@ -94,7 +91,6 @@ impl RenshuuUser {
     pub fn studied_vocab(&self) -> String {
         let mut vocab: String = String::new();
         let percs_vocab = &self.profile.level_progress_percs().vocab;
-
         writeln!(vocab, "Today: **{}**", self.profile.studied().today_vocab()).unwrap();
         writeln!(vocab, "N5: **{}**%", percs_vocab.n5).unwrap();
         writeln!(vocab, "N4: **{}**%", percs_vocab.n4).unwrap();
@@ -108,7 +104,6 @@ impl RenshuuUser {
     pub fn studied_kanji(&self) -> String {
         let mut kanji: String = String::new();
         let percs_kanji: &api_profile::ApiProfileProgressPercsJLPT = &self.profile.level_progress_percs().kanji;
-
         writeln!(kanji, "Today: **{}**", self.profile.studied().today_vocab()).unwrap();
         writeln!(kanji, "N5: **{}**%", percs_kanji.n5).unwrap();
         writeln!(kanji, "N4: **{}**%", percs_kanji.n4).unwrap();
@@ -122,7 +117,6 @@ impl RenshuuUser {
     pub fn studied_grammar(&self) -> String {
         let mut grammar: String = String::new();
         let percs_grammar: &api_profile::ApiProfileProgressPercsJLPT = &self.profile.level_progress_percs().grammar;
-
         writeln!(grammar, "Today: **{}**", self.profile.studied().today_vocab()).unwrap();
         writeln!(grammar, "N5: **{}**%", percs_grammar.n5).unwrap();
         writeln!(grammar, "N4: **{}**%", percs_grammar.n4).unwrap();
@@ -136,7 +130,6 @@ impl RenshuuUser {
     pub fn studied_sent(&self) -> String {
         let mut sent: String = String::new();
         let percs_sent: &api_profile::ApiProfileProgressPercsJLPT = &self.profile.level_progress_percs().sent;
-
         writeln!(sent, "Today: **{}**", self.profile.studied().today_vocab()).unwrap();
         writeln!(sent, "N5: **{}**%", percs_sent.n5).unwrap();
         writeln!(sent, "N4: **{}**%", percs_sent.n4).unwrap();

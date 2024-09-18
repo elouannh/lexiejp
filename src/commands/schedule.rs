@@ -1,6 +1,6 @@
 use crate::db::access;
 use crate::discord::embeds;
-use crate::renshuu::rest_agent;
+use crate::classes::rest_agent;
 use crate::replies::default_replies;
 use crate::structs::user;
 use crate::types::ctx;

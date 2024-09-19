@@ -13,7 +13,7 @@ impl RestAgent {
         }
     }
 
-    pub async fn get_method(&self, route: &str) -> Result<String, Box<dyn std::error::Error>> {
+    pub async fn get_method(&self, route: &str) -> Result<String, ctx::Error> {
         let response: reqwest::Response = self
             .client
             .get(route)

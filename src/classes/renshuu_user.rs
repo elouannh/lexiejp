@@ -15,8 +15,13 @@ pub struct RenshuuUser {
 impl RenshuuUser {
     pub async fn new(ctx: &ctx::Context<'_>, renshuu_api_key: &String) -> Result<Self, ctx::Error> {
         let db_data: user::User = Self::create_db_data(ctx, renshuu_api_key);
-        let mut content: String = Self::fetch_content(&db_data, renshuu_api_key).await.unwrap();
+        let fetched_content: Result<String, ctx::Error> = Self::fetch_content(&db_data, renshuu_api_key).await;
 
+        if fetched_content.is_err() {
+            return Err("Error while fetching data.".into())
+        }
+
+        let content: String = fetched_content?;
         let profile: api_profile::ProfileEnum =
             api_profile::ProfileEnum::create(&content).map_err(|_| "Invalid user.")?;
         let is_beginner: bool = profile.is_beginner();
@@ -34,14 +39,14 @@ impl RenshuuUser {
         user::User::default(&ctx.author().id.to_string(), renshuu_api_key)
     }
 
-    pub async fn fetch_content(db_data: &user::User, renshuu_api_key: &String) -> Result<String, Box<dyn std::error::Error>> {
+    pub async fn fetch_content(db_data: &user::User, renshuu_api_key: &String) -> Result<String, ctx::Error> {
         if db_data.cache.len() >= 2 {
             return Ok(db_data.cache.clone());
         }
 
         const API_URL: &str = "https://api.renshuu.org/v1/profile";
         let rest_agent: rest_agent::RestAgent = rest_agent::RestAgent::new(renshuu_api_key);
-        rest_agent.get_method(API_URL).await.map_err(|e| e.into())
+        rest_agent.get_method(API_URL).await
     }
 
     pub fn register_data(&self) -> user::User {
